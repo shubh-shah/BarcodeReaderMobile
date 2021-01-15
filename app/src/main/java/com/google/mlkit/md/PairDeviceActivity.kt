@@ -214,7 +214,7 @@ class PairDeviceActivity : AppCompatActivity(), OnClickListener {
                 }else{
                     val barcodeFieldList = ArrayList<BarcodeField>()
                     if(result == 1){
-                        barcodeFieldList.add(BarcodeField("Not Paired", "Connection Refused"))
+                        barcodeFieldList.add(BarcodeField("Ensure devices are on same network", "Connection Refused"))
                     }else if(result == 2){
                         barcodeFieldList.add(BarcodeField("Not Paired", "Barcode incorrect or not read"))
                     }

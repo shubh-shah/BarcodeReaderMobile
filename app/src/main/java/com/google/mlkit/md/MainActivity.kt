@@ -33,7 +33,8 @@ class MainActivity : AppCompatActivity() {
 
     private enum class DetectionMode(val titleResId: Int, val subtitleResId: Int) {
         BARCODE_LIVE(R.string.mode_barcode_live_title, R.string.mode_barcode_live_subtitle),
-        PAIR_DEVICE(R.string.pair_device_title, R.string.pair_device_subtitle)
+        PAIR_DEVICE(R.string.pair_device_title, R.string.pair_device_subtitle),
+        CHECK_PAIR_STATUS(R.string.check_pair_status_title, R.string.check_pair_status_subtitle)
     }
 
     override fun onCreate(bundle: Bundle?) {
@@ -91,6 +92,8 @@ class MainActivity : AppCompatActivity() {
                             activity.startActivity(Intent(activity, LiveBarcodeScanningActivity::class.java))
                         DetectionMode.PAIR_DEVICE ->
                             activity.startActivity(Intent(activity, PairDeviceActivity::class.java))
+                        DetectionMode.CHECK_PAIR_STATUS ->
+                            activity.startActivity(Intent(activity, CheckPairStatusActivity::class.java))
                     }
                 }
             }

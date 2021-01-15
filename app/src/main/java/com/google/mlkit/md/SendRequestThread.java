@@ -2,12 +2,15 @@ package com.google.mlkit.md;
 
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 
 public class SendRequestThread implements Runnable{
@@ -18,10 +21,21 @@ public class SendRequestThread implements Runnable{
     public static String password;
     String postJsonData;
     public boolean success;
+    public String error;
 
     public SendRequestThread(String content){
-        this.postJsonData = "{\"content\":\""+content +"\",\"password\":\""+password+"\"}";
-        this.success = false;
+        JSONObject obj = new JSONObject();
+        try{
+            obj.put("content",content);
+            obj.put("password",password);
+            this.postJsonData = obj.toString();
+            this.success = true;
+        }
+        catch (JSONException e){
+            error = "Invalid Content";
+            this.success = false;
+        }
+//        this.postJsonData = "{\"content\":\""+content +"\",\"password\":\""+password+"\"}";
     }
 
     public static int setUrlPassword(String input){
@@ -36,8 +50,10 @@ public class SendRequestThread implements Runnable{
                     return 0;
                 }
             }
+            SendRequestThread.url = null;
+            SendRequestThread.password = null;
             return 1;
-        }catch (Exception e){
+        }catch (JSONException e){
             SendRequestThread.url = null;
             SendRequestThread.password = null;
             return 2;
@@ -46,11 +62,10 @@ public class SendRequestThread implements Runnable{
 
     @Override
     public void run(){
-        try  {
-            success = sendPostRequest();
-        } catch (Exception e) {
-            e.printStackTrace();
+        if(this.success==false){
+            return;
         }
+        success = sendPostRequest();
     }
 
     public boolean start () {
@@ -60,7 +75,8 @@ public class SendRequestThread implements Runnable{
                 t.start ();
                 t.join();
                 return success;
-            }catch (Exception e){
+            }catch (InterruptedException e){
+                error = "Connection Interrupted";
                 return false;
             }
         }
@@ -70,6 +86,7 @@ public class SendRequestThread implements Runnable{
     // HTTP Post request
     public boolean sendPostRequest(){
         if(url == null){
+            error="Device Not Paired";
             return false;
         }
         try{
@@ -101,15 +118,22 @@ public class SendRequestThread implements Runnable{
                 }
                 in.close();
 
+                error = response.toString();
                 if(response.toString().equals("Success")){
                     return true;
                 }
                 return false;
             }
-            return false;
-        }catch(Exception e){
+            error = "Connection Unsuccessful : "+responseCode;
             return false;
         }
-
+        catch(MalformedURLException e){
+            error = e.getClass().getSimpleName();
+            return false;
+        }
+        catch (IOException e){
+            error = e.getClass().getSimpleName()+"\nEnsure that devices are on the same network and Pair them again";
+            return false;
+        }
     }
 }

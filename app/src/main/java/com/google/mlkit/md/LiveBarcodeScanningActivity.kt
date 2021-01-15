@@ -200,10 +200,11 @@ class LiveBarcodeScanningActivity : AppCompatActivity(), OnClickListener {
         workflowModel?.detectedBarcode?.observe(this, Observer { barcode ->
             if (barcode != null) {
                 val barcodeFieldList = ArrayList<BarcodeField>()
-                if(SendRequestThread((barcode.rawValue ?: "")).start()){
+                val sendRequest = SendRequestThread((barcode.rawValue ?: ""))
+                if(sendRequest.start()){
                     barcodeFieldList.add(BarcodeField("Raw Value, Sent to paired Device", barcode.rawValue ?: ""))
                 }else{
-                    barcodeFieldList.add(BarcodeField("Raw Value, Device not paired", barcode.rawValue ?: ""))
+                    barcodeFieldList.add(BarcodeField("Raw Value, Not Sent:"+sendRequest.error, barcode.rawValue ?: ""))
                 }
                 BarcodeResultFragment.show(supportFragmentManager, barcodeFieldList)
             }
