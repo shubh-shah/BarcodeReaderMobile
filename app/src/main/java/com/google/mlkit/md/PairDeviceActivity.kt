@@ -18,6 +18,7 @@ package com.google.mlkit.md
 
 import android.animation.AnimatorInflater
 import android.animation.AnimatorSet
+import android.content.Context
 import android.content.Intent
 import android.hardware.Camera
 import android.os.Bundle
@@ -29,6 +30,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.google.android.material.chip.Chip
 import com.google.common.base.Objects
+import com.google.mlkit.md.barcodedetection.BarcodeField
 import com.google.mlkit.md.barcodedetection.BarcodeProcessor
 import com.google.mlkit.md.barcodedetection.BarcodeResultFragment
 import com.google.mlkit.md.camera.CameraSource
@@ -38,11 +40,7 @@ import com.google.mlkit.md.camera.WorkflowModel
 import com.google.mlkit.md.camera.WorkflowModel.WorkflowState
 import com.google.mlkit.md.settings.SettingsActivity
 import java.io.*
-import java.net.InetAddress
-import java.net.NetworkInterface
 import java.util.*
-import kotlin.collections.ArrayList
-
 
 /** Demonstrates the barcode scanning workflow using camera preview.  */
 class PairDeviceActivity : AppCompatActivity(), OnClickListener {
@@ -201,31 +199,27 @@ class PairDeviceActivity : AppCompatActivity(), OnClickListener {
         })
 
         workflowModel?.detectedBarcode?.observe(this, Observer { barcode ->
-//            var localhostIP = ArrayList<String>()
-//            val listNI: Enumeration<NetworkInterface> = NetworkInterface.getNetworkInterfaces()
-//            while (listNI.hasMoreElements()) {
-//                val currNI: NetworkInterface = listNI.nextElement()
-//                val listIP: Enumeration<InetAddress> = currNI.inetAddresses
-//                while (listIP.hasMoreElements()) {
-//                    localhostIP.add((listIP.nextElement() as InetAddress).hostAddress.toString())
-//                    println(localhostIP[localhostIP.size - 1])
-//                }
-//            }
             if (barcode != null) {
-                if (SendRequestThread.setUrlPassword(barcode.rawValue)) {
-                    if (SendRequestThread("").start()) {
-                        promptChip?.visibility = View.VISIBLE
-                        promptChip?.setText(R.string.device_paired)
-                    } else {
-                        promptChip?.visibility = View.VISIBLE
-                        promptChip?.setText(R.string.device_not_paired)
-                    }
-                } else {
+                var result = SendRequestThread.setUrlPassword(barcode.rawValue)
+                if (result==0) {
                     promptChip?.visibility = View.VISIBLE
-                    promptChip?.setText(R.string.device_not_paired)
+                    promptChip?.setText(R.string.device_paired)
+                    val sharedPref = this?.getPreferences(Context.MODE_PRIVATE)
+                    with (sharedPref.edit()) {
+                        putString(getString(R.string.barcode_reader_password), SendRequestThread.password)
+                        putString(getString(R.string.barcode_reader_url), SendRequestThread.url)
+                        apply()
+                    }
+                    finish()
+                }else{
+                    val barcodeFieldList = ArrayList<BarcodeField>()
+                    if(result == 1){
+                        barcodeFieldList.add(BarcodeField("Not Paired", "Connection Refused"))
+                    }else if(result == 2){
+                        barcodeFieldList.add(BarcodeField("Not Paired", "Barcode incorrect or not read"))
+                    }
+                    BarcodeResultFragment.show(supportFragmentManager, barcodeFieldList)
                 }
-//                Thread.sleep(1500)
-                finish()
             }
         })
     }

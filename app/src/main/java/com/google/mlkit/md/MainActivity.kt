@@ -15,6 +15,7 @@
  */
 package com.google.mlkit.md
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -25,10 +26,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import java.net.InetAddress
-import java.net.NetworkInterface
-import java.util.*
-import kotlin.collections.ArrayList
 
 
 /** Entry activity to select the detection mode.  */
@@ -50,16 +47,9 @@ class MainActivity : AppCompatActivity() {
             adapter = ModeItemAdapter(DetectionMode.values())
         }
 
-        var localhostIP = ArrayList<String>()
-        val listNI: Enumeration<NetworkInterface> = NetworkInterface.getNetworkInterfaces()
-        while (listNI.hasMoreElements()) {
-            val currNI: NetworkInterface = listNI.nextElement()
-            val listIP: Enumeration<InetAddress> = currNI.inetAddresses
-            while (listIP.hasMoreElements()) {
-                localhostIP.add((listIP.nextElement() as InetAddress).hostAddress.toString())
-                println(localhostIP[localhostIP.size - 1])
-            }
-        }
+        val sharedPref = this?.getPreferences(Context.MODE_PRIVATE) ?: return
+        SendRequestThread.password = sharedPref.getString(getString(R.string.barcode_reader_password), null)
+        SendRequestThread.url = sharedPref.getString(getString(R.string.barcode_reader_url), null)
     }
 
     override fun onResume() {
@@ -74,10 +64,10 @@ class MainActivity : AppCompatActivity() {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ModeItemViewHolder {
             return ModeItemViewHolder(
-                    LayoutInflater.from(parent.context)
-                            .inflate(
-                                    R.layout.detection_mode_item, parent, false
-                            )
+                LayoutInflater.from(parent.context)
+                    .inflate(
+                        R.layout.detection_mode_item, parent, false
+                    )
             )
         }
 
@@ -107,3 +97,4 @@ class MainActivity : AppCompatActivity() {
         }
     }
 }
+

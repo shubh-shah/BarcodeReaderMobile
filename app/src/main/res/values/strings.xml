@@ -17,6 +17,8 @@
   <string name="pair_device_subtitle" translatable="false">Send the scanned barcodes to the Paired Desktop</string>
   <string name="device_not_paired" translatable="false">Not Paired</string>
   <string name="device_paired" translatable="false">Paired</string>
+  <string name="barcode_reader_password" translatable="false">BarcodeReader_password</string>
+  <string name="barcode_reader_url" translatable="false">BarcodeReader_url</string>
 
   <!-- Strings for camera settings. -->
   <string name="pref_category_camera">Camera</string>

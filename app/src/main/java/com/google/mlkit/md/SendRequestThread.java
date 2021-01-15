@@ -1,6 +1,7 @@
 package com.google.mlkit.md;
 
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -13,8 +14,8 @@ public class SendRequestThread implements Runnable{
     Thread t;
 
     public static final String USER_AGENT = "Mozilla/5.0";
-    private static String url;
-    private static String password;
+    public static String url;
+    public static String password;
     String postJsonData;
     public boolean success;
 
@@ -23,16 +24,23 @@ public class SendRequestThread implements Runnable{
         this.success = false;
     }
 
-    public static boolean setUrlPassword(String input){
+    public static int setUrlPassword(String input){
         try {
             JSONObject reader = new JSONObject(input);
-            SendRequestThread.url = reader.getString("url");
             SendRequestThread.password = reader.getString("password");
-            return true;
+            JSONArray arr = reader.getJSONArray("url");
+            for (int i = 0; i < arr.length(); i++) {
+                SendRequestThread.url="http://"+arr.getString(i)+":8080/post-barcode";
+                System.out.println(SendRequestThread.url);
+                if((new SendRequestThread("")).start()){
+                    return 0;
+                }
+            }
+            return 1;
         }catch (Exception e){
             SendRequestThread.url = null;
             SendRequestThread.password = null;
-            return false;
+            return 2;
         }
     }
 
@@ -73,6 +81,7 @@ public class SendRequestThread implements Runnable{
             con.setRequestProperty("User-Agent", USER_AGENT);
             con.setRequestProperty("Accept-Language", "en-US,en;q=0.5");
             con.setRequestProperty("Content-Type","application/json");
+            con.setConnectTimeout(1000);
 
             // Send post request
             con.setDoOutput(true);
