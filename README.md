@@ -4,7 +4,7 @@ No need to buy a scanner.
 Get the companion desktop server [here](https://github.com/shubh-shah/BarcodeReaderDesktop).
 Get a release from github or you can build it yourself
 
-Created from the [material-showcase](https://github.com/googlesamples/mlkit) app. Thanks to Google.
+Created from the [material-showcase](https://github.com/googlesamples/mlkit) app. Thanks to the Google developers behind it.
 
 ## How to use the app
 
