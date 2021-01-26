@@ -1,4 +1,4 @@
-# BarcodeReaderDesktop
+# BarcodeReaderMobile
 Transform your phone into a barcode reader. 
 No need to buy a scanner.   
 Get the companion desktop server [here](https://github.com/shubh-shah/BarcodeReaderDesktop).
